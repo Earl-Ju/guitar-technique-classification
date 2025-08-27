@@ -1,0 +1,40 @@
+# environment.yml
+# This file defines the exact environment for reproducing the 'guitar-ai-technique-classifier' project.
+# To create this environment, run: `conda env create -f environment.yml`
+# To update this file after adding new packages, run: `conda env export > environment.yml`
+
+name: guitar-ai-technique-classifier  # The name of your Conda environment
+channels:
+  - conda-forge  # Priority channel for most up-to-date packages
+  - defaults
+dependencies:
+  # Core Python version - Pinned for stability
+  - python=3.9
+
+  # Core Scientific Computing & Data Science Stack - from Conda
+  - numpy
+  - scipy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - jupyter
+  - jupyterlab  # Optional: enhanced Jupyter experience
+  - ipython
+
+  # Audio Processing - LibROSA and its dependencies are best installed via Conda
+  - librosa=0.10.0
+  - libsndfile  # Critical dependency for reading/writing audio files
+
+  # Advanced Machine Learning & Deep Learning (Future-proofing)
+  - tensorflow  # For future deep learning models (e.g., CNNs, RNNs)
+  # - pytorch  # Alternative to TensorFlow, uncomment if you prefer PyTorch
+
+  # Packaging and Deployment
+  - pip  # Allows using pip within the Conda environment
+  - notebook
+  - ipykernel  # To ensure the environment can be used as a Jupyter kernel
+
+  # Packages to install via PIP (if not available on Conda channels)
+  - pip:
+    - gradio  # For building quick web demos of your model
+    # - streamlit  # Alternative to Gradio for building web apps
