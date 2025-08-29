@@ -53,3 +53,4 @@ results/
 
 # Jupyter & temp
 *.log
+.idea/
