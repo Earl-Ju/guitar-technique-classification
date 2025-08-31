@@ -1,43 +1,40 @@
 # src/train.py
 from __future__ import annotations
-import argparse
-from pathlib import Path
+import os, argparse, joblib
+from .dataset import load_folder_classification, save_label_map
+from .models import build_svm_pipeline
+from .evaluate import evaluate_model
 
-from .dataset import load_folder_classification
-from .models import get_model, save_model
-from .evaluate import evaluate_and_plot
+def parse_args():
+    p = argparse.ArgumentParser(description="Train SVM baseline for guitar technique classification")
+    p.add_argument("--data_dir", default="data/processed", help="Root folder with class subfolders")
+    p.add_argument("--out_dir",  default="results/quick_test", help="Where to save artifacts")
+    p.add_argument("--test_size", type=float, default=0.2)
+    p.add_argument("--seed", type=int, default=42)
+    return p.parse_args()
 
 def main():
-    parser = argparse.ArgumentParser(description="Train SVM baseline on folder-structured dataset.")
-    parser.add_argument("--data", type=str, default="data/quick_test", help="Root folder: class subfolders with audio.")
-    parser.add_argument("--out", type=str, default="results/quick_test", help="Output dir for artifacts.")
-    parser.add_argument("--model", type=str, default="svm", help="Model kind (svm).")
-    args = parser.parse_args()
+    args = parse_args()
+    os.makedirs(args.out_dir, exist_ok=True)
 
-    out_dir = Path(args.out)
-    out_dir.mkdir(parents=True, exist_ok=True)
+    # 1) Load data/features
+    X_train, X_test, y_train, y_test, class_names = load_folder_classification(
+        args.data_dir, test_size=args.test_size, random_state=args.seed
+    )
 
-    print(f"🔹 Loading dataset from: {args.data}")
-    X_train, X_test, y_train, y_test, class_names = load_folder_classification(args.data)
-    print(f"   Train: {X_train.shape}, Test: {X_test.shape}, Classes: {class_names}")
-
-    print("🔹 Building model pipeline…")
-    model = get_model(args.model)
-
-    print("🔹 Training…")
+    # 2) Build model & train
+    model = build_svm_pipeline()
     model.fit(X_train, y_train)
 
-    print("🔹 Evaluating…")
-    fig = evaluate_and_plot(model, X_test, y_test, class_names)
-    fig_path = out_dir / "confusion_matrix.png"
-    fig.savefig(fig_path, dpi=160)
-    print(f"   Saved: {fig_path}")
+    # 3) Evaluate
+    evaluate_model(model, X_test, y_test, class_names, out_dir=args.out_dir)
 
-    model_path = out_dir / f"{args.model}_baseline.joblib"
-    save_model(model, model_path)
-    print(f"   Saved model: {model_path}")
+    # 4) Save model + label map
+    model_path = os.path.join(args.out_dir, "svm_baseline.joblib")
+    joblib.dump(model, model_path)
+    save_label_map(os.path.join(args.out_dir, "label_map.json"), class_names)
 
-    print("✅ Done.")
+    print(f"[Saved] {model_path}")
 
 if __name__ == "__main__":
     main()

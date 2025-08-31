@@ -5,41 +5,36 @@ import librosa
 
 def extract_features(
     file_path: str,
-    sr: int = 22050,
-    n_mfcc: int = 13,
+    sr: int = 22_050,
+    n_mfcc: int = 20,
+    include_chroma: bool = True,
+    include_spectral: bool = True,
 ) -> np.ndarray:
-    """
-    提取常用音频特征并拼成一个固定长度的一维向量（均值/标准差聚合）。
+    """Load audio and compute a compact feature vector."""
+    y, _sr = librosa.load(file_path, sr=sr, mono=True)
+    if y.size == 0:
+        raise ValueError("Empty audio")
 
-    含：MFCC, Chroma, Spectral Centroid, Bandwidth, Rolloff, ZCR
-    """
-    y, sr = librosa.load(file_path, sr=sr, mono=True)
+    feats = []
 
-    # —— 频谱图基础
-    S = np.abs(librosa.stft(y)) + 1e-9
-    S_db = librosa.power_to_db(S**2, ref=np.max)
-
-    # —— 各类特征（逐帧）
+    # MFCC (mean + std)
     mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc)
-    chroma = librosa.feature.chroma_stft(S=S, sr=sr)
-    centroid = librosa.feature.spectral_centroid(S=S, sr=sr)
-    bandwidth = librosa.feature.spectral_bandwidth(S=S, sr=sr)
-    rolloff = librosa.feature.spectral_rolloff(S=S, sr=sr)
-    zcr = librosa.feature.zero_crossing_rate(y)
+    feats += [mfcc.mean(axis=1), mfcc.std(axis=1)]
 
-    # —— 统计汇总（均值 & 标准差）
-    def stats(x: np.ndarray) -> np.ndarray:
-        return np.hstack([x.mean(axis=1), x.std(axis=1)])
+    if include_chroma:
+        chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+        feats += [chroma.mean(axis=1), chroma.std(axis=1)]
 
-    feats = np.hstack([
-        stats(mfcc),
-        stats(chroma),
-        stats(centroid),
-        stats(bandwidth),
-        stats(rolloff),
-        stats(zcr),
-    ])
+    if include_spectral:
+        spec_cent = librosa.feature.spectral_centroid(y=y, sr=sr)
+        spec_bw   = librosa.feature.spectral_bandwidth(y=y, sr=sr)
+        rolloff   = librosa.feature.spectral_rolloff(y=y, sr=sr)
+        zcr       = librosa.feature.zero_crossing_rate(y)
+        feats += [
+            spec_cent.mean(axis=1), spec_cent.std(axis=1),
+            spec_bw.mean(axis=1),   spec_bw.std(axis=1),
+            rolloff.mean(axis=1),   rolloff.std(axis=1),
+            zcr.mean(axis=1),       zcr.std(axis=1),
+        ]
 
-    # 防 NaN/Inf
-    feats = np.nan_to_num(feats, nan=0.0, posinf=0.0, neginf=0.0)
-    return feats.astype(np.float32)
+    return np.concatenate([f.ravel() for f in feats]).astype(np.float32)
