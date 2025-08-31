@@ -1,56 +1,83 @@
-# 忽略虚拟环境相关文件
-.guitar-ai-technique-classifier/
-venv/
-env/
-.conda/
-
-# 忽略Python缓存文件
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
 
-# 忽略Jupyter Notebook检查和缓存
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+*.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
 .ipynb_checkpoints/
-.nova/
 
-# 忽略IDE设置文件（PyCharm）
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VSCode / PyCharm
+.vscode/
 .idea/
-*.iml
 
-# 忽略大型数据文件（根据情况取消注释）
-# data/raw/
-# data/processed/
-# models/
-# results/
-
-# 忽略系统文件
+# macOS
 .DS_Store
-Thumbs.db
-# OS / IDE
-.DS_Store
-.idea/
-__pycache__/
-*.pyc
-.ipynb_checkpoints/
 
-# Data (原始/中间/模型/日志 不上库)
-data/raw/
-data/interim/
-results/
-*.npy
-*.npz
-*.pt
-*.pth
-*.onnx
-*.ckpt
-*.wav
-*.mp3
-*.flac
-*.m4a
-*.zip
-*.tar
-*.tar.gz
+# Data
+data/processed/*
+!data/processed/.gitkeep
 
-# Jupyter & temp
+# Results (save locally, don’t version control)
+results/*
+!results/.gitkeep
+
+# Logs
 *.log
-.idea/
