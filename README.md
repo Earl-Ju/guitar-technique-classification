@@ -88,6 +88,31 @@ I am a music industry professional and Master Builder of electric guitars, now t
 - 📫 **Connect with me:** [LinkedIn / personal page — optional]
 - ⚠️ Please check and respect dataset licenses (e.g., non-commercial clauses).
 
+---
+
+## Quickstart Demo
+
+To quickly test the pipeline without needing a real dataset, you can generate a minimal dummy dataset and run training:
+
+```bash
+# 1. Generate dummy dataset (creates simple sine waves for "bending" and "vibrato")
+python generate_dummy_data.py
+
+# 2. Run training & evaluation on the dummy dataset
+python -m src.train --data_dir data/processed --out_dir results/quick_test
+
+```
+```commandline
+This will:
+
+Create a toy dataset under data/processed/ with 2 classes (bending, vibrato).
+
+Extract features (MFCCs).
+
+Train and evaluate a simple SVM classifier.
+
+Save results (metrics, logs, models) into results/quick_test/.
+```
 
 
 
